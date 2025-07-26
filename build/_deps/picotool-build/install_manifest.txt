@@ -1,0 +1,5 @@
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/_deps/picotool/picotool
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/_deps/picotool/picotoolTargets.cmake
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/_deps/picotool/picotoolTargets-release.cmake
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/_deps/picotool/picotoolConfig.cmake
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/_deps/picotool/picotoolConfigVersion.cmake

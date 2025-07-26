@@ -1,0 +1,13 @@
+# Target labels
+ pioasmBuild
+# Source files and their labels
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pico-sdk/src/rp2_common/pico_cyw43_driver/CMakeFiles/pioasmBuild
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pico-sdk/src/rp2_common/pico_cyw43_driver/CMakeFiles/pioasmBuild.rule
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pico-sdk/src/rp2_common/pico_cyw43_driver/CMakeFiles/pioasmBuild-complete.rule
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pico-sdk/src/rp2_common/pico_cyw43_driver/pioasm/src/pioasmBuild-stamp/pioasmBuild-build.rule
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pico-sdk/src/rp2_common/pico_cyw43_driver/pioasm/src/pioasmBuild-stamp/pioasmBuild-configure.rule
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pico-sdk/src/rp2_common/pico_cyw43_driver/pioasm/src/pioasmBuild-stamp/pioasmBuild-download.rule
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pico-sdk/src/rp2_common/pico_cyw43_driver/pioasm/src/pioasmBuild-stamp/pioasmBuild-install.rule
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pico-sdk/src/rp2_common/pico_cyw43_driver/pioasm/src/pioasmBuild-stamp/pioasmBuild-mkdir.rule
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pico-sdk/src/rp2_common/pico_cyw43_driver/pioasm/src/pioasmBuild-stamp/pioasmBuild-patch.rule
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pico-sdk/src/rp2_common/pico_cyw43_driver/pioasm/src/pioasmBuild-stamp/pioasmBuild-update.rule

@@ -1,0 +1,5 @@
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm-install/pioasm/pioasm
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm-install/pioasm/pioasmTargets.cmake
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm-install/pioasm/pioasmTargets-release.cmake
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm-install/pioasm/pioasmConfig.cmake
+/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm-install/pioasm/pioasmConfigVersion.cmake
