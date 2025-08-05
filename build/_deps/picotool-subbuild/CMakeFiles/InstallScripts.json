@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/_deps/picotool-subbuild/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

@@ -1,7 +1,0 @@
-/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm/CMakeFiles/pioasm.dir
-/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm/CMakeFiles/edit_cache.dir
-/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm/CMakeFiles/rebuild_cache.dir
-/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm/CMakeFiles/list_install_components.dir
-/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm/CMakeFiles/install.dir
-/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm/CMakeFiles/install/local.dir
-/home/lucanotreally/progetti/elettronica/pico2/pico2_blink/build/pioasm/CMakeFiles/install/strip.dir
