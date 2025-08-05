@@ -1,2 +1,3 @@
-Polysynth
-
+Pico 60 is a polyphonic synthetizer, with 6 analog voices, controlled by an RP2350B custom board. The name pico-60 comes from the first iteration of the project, which used a Raspberry Pi pico board. Later i opted for a 2350B for various reasons: more gpios, higher speeds, more ADCS, more accurate PSU, and i was also curious about RISC-V compiling.
+The uC only sends GATE (1 or 0) and FREQUENCY (freq of the note played), technically it also sends a compensation voltage, which gets converted to constant current to compensate the amplitude of the saw wave diminishing as its frequency rises.
+The rest of manipulation sound and parameter wise is done in the analog realm via pots on the synth.
