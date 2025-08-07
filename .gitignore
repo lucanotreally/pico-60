@@ -1,1 +1,16 @@
-build/
+build/CMakeCache.txt
+build/CMakeFiles/
+build/cmake_install.cmake
+build/_deps/
+build/generated/
+build/Makefile
+build/pico-60.dis
+build/pico-60.elf.map
+
+build/pico_flash_region.ld
+build/pico-sdk/
+build/pioasm
+build/pioasm-install/
+
+
+

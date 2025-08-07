@@ -2,12 +2,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-
 #include "pico/stdlib.h"
 #include "hardware/clocks.h"
 #include "hardware/pio.h"
-
-#include "blink.pio.h"
+#include "hardware/pwm.h"
+#include "pico.pio.h"
 //todo fixare VOICES NELLA FUNZIONE RISCHIO ESPLOSIONE
 #define LED_PIN 25
 #define SET_PIN 13
@@ -20,22 +19,22 @@ PIO pio = pio0;
 uint sm = 0;
 float voice_to_frequency[NUM_VOICES] = {0,0,0,0,0,0}; //frequency of each voice, 0 is voice not used
 bool voice_to_gate[NUM_VOICES] = {0,0,0,0,0,0}; //gate for each voice 0 off 1 on
-uint16_t voice_to_pwm[NUM_VOICES] = {0,0,0,0,0,0}; //pwm compensation for each voice,uint16 as datasheet
+uint voice_to_pwm[NUM_VOICES] = {0,0,0,0,0,0}; //pwm compensation for each voice,uint16 as datasheet
 
 //vettori per comodita nel trovare pin e sm
-const uint8_t VOICE_TO_PIO[NUM_VOICES] = {0,1,1,1,1,2};
-const uint8_t VOICE_TO_SM[NUM_VOICES] = {3,0,1,2,3,0};
-const uint8_t VOICE_TO_FREQ_PIN[NUM_VOICES]= {0,0,0,0,0,0};
-const uint8_t VOICE_TO_GATE_PIN[NUM_VOICES]= {0,0,0,0,0,0};
-const uint8_t VOICE_TO_PWM_PIN[NUM_VOICES]= {0,0,0,0,0,0};
-const uint8_t VOICE_TO_SLICE_NUM[NUM_VOICES] = {0,0,0,0,0,0};
-const uint8_t VOICE_TO_CHANNEL_NUM[NUM_VOICES] = {0,0,0,0,0,0};
+const PIO VOICE_TO_PIO[NUM_VOICES] = {pio0,pio1,pio1,pio1,pio1,pio2};
+const uint VOICE_TO_SM[NUM_VOICES] = {3,0,1,2,3,0};
+const uint VOICE_TO_FREQ_PIN[NUM_VOICES]= {0,0,0,0,0,0};
+const uint VOICE_TO_GATE_PIN[NUM_VOICES]= {0,0,0,0,0,0};
+const uint VOICE_TO_PWM_PIN[NUM_VOICES]= {0,0,0,0,0,0};
+const uint VOICE_TO_SLICE_NUM[NUM_VOICES] = {0,0,0,0,0,0};
+const uint VOICE_TO_CHANNEL_NUM[NUM_VOICES] = {0,0,0,0,0,0};
 const uint divider = 1250;
 
 float VOICES[NUM_VOICES];
 
 
-uint8_t curr_voice;//segnalino per round robin NON CI CAPISCO PIU U N CAZZO
+uint curr_voice;//segnalino per round robin NON CI CAPISCO PIU U N CAZZO
 
 /*
 	todo azioni in ordine
@@ -58,25 +57,25 @@ const float note_freq[61] = {
 	1046.50
 };
 
-void libera_voce_con_freq(uint8_t freq_index){
+void libera_voce_con_freq(uint freq_index){
 	for(int temp_index = 0 ; temp_index <NUM_VOICES; temp_index++){
-		if (voice_to_frequency[index] == note_freq[freq_index]){
-			voice_to_frequency[index] = 0;
-			pio_sm_put(VOICE_TO_PIO[index],VOICE_TO_SM[index],0);
-			voice_to_gate[index] = 0;
-			gpio_put(VOICE_TO_GATE_PIN[index],0);
-			voice_to_pwm[index] = 0;
-			pwm_set_chan_level(VOICE_TO_SLICE_NUM[index] ,VOICE_TO_CHANNEL_NUM[index], 0);
+		if (voice_to_frequency[temp_index] == note_freq[freq_index]){
+			voice_to_frequency[temp_index] = 0;
+			pio_sm_put(VOICE_TO_PIO[temp_index],VOICE_TO_SM[temp_index],0);
+			voice_to_gate[temp_index] = 0;
+			gpio_put(VOICE_TO_GATE_PIN[temp_index],0);
+			voice_to_pwm[temp_index] = 0;
+			pwm_set_chan_level(VOICE_TO_SLICE_NUM[temp_index] ,VOICE_TO_CHANNEL_NUM[temp_index], 0);
 			break;
 		}
 	}
 
 }
 
-void assegna_voce_con_freq(uint8_t freq_index){
+void assegna_voce_con_freq(uint freq_index){
 	voice_to_frequency[curr_voice] = note_freq[freq_index];
 	pio_sm_put(VOICE_TO_PIO[curr_voice],VOICE_TO_SM[curr_voice],note_freq[freq_index]);
-	voice_to_gate[curr_voie] = 1;
+	voice_to_gate[curr_voice] = 1;
 	gpio_put(VOICE_TO_GATE_PIN[curr_voice],1);
 	voice_to_pwm[curr_voice] = (int)(divider*(voice_to_frequency[curr_voice]*0.00025f-1/(100*voice_to_frequency[curr_voice])));
 	pwm_set_chan_level(VOICE_TO_SLICE_NUM[curr_voice] , VOICE_TO_CHANNEL_NUM[curr_voice], (int)(divider*(voice_to_frequency[curr_voice]*0.00025f-1/(100*voice_to_frequency[curr_voice]))));
@@ -92,13 +91,13 @@ void keyboard_task(uint64_t prev_scan,uint64_t curr_scan){
 	while(rilasciati){
 		uint i_lasciati = __builtin_ctzll(rilasciati);
 		libera_voce_con_freq(i_lasciati);
-		rilasciati &=  ~(1ULL<<i);	
+		rilasciati &=  ~(1ULL<<i_lasciati);	
 	}
 	
 	while(premuti){
 		uint i_premuti = __builtin_ctzll(rilasciati);
 		assegna_voce_con_freq(i_premuti);
-		premuti &= ~(1ULL<<i);
+		premuti &= ~(1ULL<<i_premuti);
 	}
 
 		
@@ -106,8 +105,8 @@ void keyboard_task(uint64_t prev_scan,uint64_t curr_scan){
 int main(){
 	stdio_init_all();//per comunicazione usb
 	setup_default_uart();
-	uint offset = pio_add_program(pio,&blink_program);
-	blink_program_init(pio,sm,offset,SET_PIN,IN_PIN,2000);
+	uint offset = pio_add_program(pio,&scan_program);
+	scan_program_init(pio,sm,offset,SET_PIN,IN_PIN,2000);
 	sleep_ms(1000);
 	printf("Starting program\n");
 	uint32_t prev = 0;

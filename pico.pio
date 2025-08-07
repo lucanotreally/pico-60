@@ -1,0 +1,70 @@
+.program scan
+
+lp:
+	set pins 1[31] 
+	in pins 3
+	set pins 2[31]
+	in pins 3
+	set pins 4[31]
+	in pins 3
+	push
+	jmp lp
+
+
+
+% c-sdk{
+static inline void scan_program_init(PIO pio, uint sm, uint offset,uint set_pin,uint in_pin,uint freq){
+	pio_sm_config c = scan_program_get_default_config(offset);
+	sm_config_set_set_pins(&c, set_pin , 3);
+	pio_gpio_init(pio,set_pin);
+	pio_gpio_init(pio,set_pin+1);
+	pio_gpio_init(pio,set_pin+2);
+	pio_sm_set_consecutive_pindirs(pio,sm,set_pin,3,true);
+	
+	sm_config_set_in_pins(&c,in_pin);
+	sm_config_set_in_pin_count(&c,3);
+	pio_sm_set_consecutive_pindirs(pio,sm,in_pin,3,false);
+	pio_gpio_init(pio,in_pin);	
+	pio_gpio_init(pio,in_pin+1);	
+	pio_gpio_init(pio,in_pin+2);	
+	sm_config_set_in_shift(&c,0,0,32);
+	
+	float div = clock_get_hz(clk_sys)/freq;
+	sm_config_set_clkdiv(&c, div);
+	pio_sm_init(pio,sm,offset,&c);
+	pio_sm_set_enabled(pio,sm,true);
+
+}
+%}
+
+
+.program play
+
+
+    pull block
+    out y, 32
+.wrap_target
+    mov x, y
+    set pins, 31  ; Turn LED on
+lp1:
+    jmp x-- lp1   ; Delay for (x + 1) cycles, x is a 32 bit number
+    mov x, y
+    set pins, 0   ; Turn LED off
+lp2:
+    jmp x-- lp2   ; Delay for the same number of cycles again
+.wrap             ; Blink forever!
+
+
+% c-sdk {
+// this is a raw helper function for use by the user which sets up the GPIO output, and configures the SM to output on a particular pin
+
+void play_program_init(PIO pio, uint sm, uint offset, uint pin) {
+	pio_sm_config c = play_program_get_default_config(offset);
+   //sm_config_set_clkdiv(&c,clock_get_hz(clk_sys)/1000);
+	pio_gpio_init(pio, pin);
+	pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, true);
+	sm_config_set_set_pins(&c, pin,1);
+	pio_sm_init(pio, sm, offset, &c);
+}
+%}
+
