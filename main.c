@@ -34,7 +34,7 @@ const uint divider = 1250;
 float VOICES[NUM_VOICES];
 
 
-uint curr_voice;//segnalino per round robin NON CI CAPISCO PIU U N CAZZO
+uint curr_voice = 0;//segnalino per round robin NON CI CAPISCO PIU U N CAZZO
 
 /*
 	todo azioni in ordine
@@ -61,11 +61,11 @@ void libera_voce_con_freq(uint freq_index){
 	for(int temp_index = 0 ; temp_index <NUM_VOICES; temp_index++){
 		if (voice_to_frequency[temp_index] == note_freq[freq_index]){
 			voice_to_frequency[temp_index] = 0;
-			pio_sm_put(VOICE_TO_PIO[temp_index],VOICE_TO_SM[temp_index],0);
+//			pio_sm_put(VOICE_TO_PIO[temp_index],VOICE_TO_SM[temp_index],0);
 			voice_to_gate[temp_index] = 0;
-			gpio_put(VOICE_TO_GATE_PIN[temp_index],0);
+//			gpio_put(VOICE_TO_GATE_PIN[temp_index],0);
 			voice_to_pwm[temp_index] = 0;
-			pwm_set_chan_level(VOICE_TO_SLICE_NUM[temp_index] ,VOICE_TO_CHANNEL_NUM[temp_index], 0);
+//			pwm_set_chan_level(VOICE_TO_SLICE_NUM[temp_index] ,VOICE_TO_CHANNEL_NUM[temp_index], 0);
 			break;
 		}
 	}
@@ -73,32 +73,52 @@ void libera_voce_con_freq(uint freq_index){
 }
 
 void assegna_voce_con_freq(uint freq_index){
-	voice_to_frequency[curr_voice] = note_freq[freq_index];
-	pio_sm_put(VOICE_TO_PIO[curr_voice],VOICE_TO_SM[curr_voice],note_freq[freq_index]);
-	voice_to_gate[curr_voice] = 1;
-	gpio_put(VOICE_TO_GATE_PIN[curr_voice],1);
-	voice_to_pwm[curr_voice] = (int)(divider*(voice_to_frequency[curr_voice]*0.00025f-1/(100*voice_to_frequency[curr_voice])));
-	pwm_set_chan_level(VOICE_TO_SLICE_NUM[curr_voice] , VOICE_TO_CHANNEL_NUM[curr_voice], (int)(divider*(voice_to_frequency[curr_voice]*0.00025f-1/(100*voice_to_frequency[curr_voice]))));
-	curr_voice = (curr_voice + 1) % NUM_VOICES;
+	uint start_voice = curr_voice;
+	int found_voice = -1;
+	
+	for (int i = 0; i < NUM_VOICES; i++) {
+       		int voice = (start_voice + i) % NUM_VOICES;
+        	if (!voice_to_gate[voice]) {
+            		found_voice = voice;
+            		break;
+        	}
+    	}	
+
+	if (found_voice == -1) {
+        	found_voice = curr_voice;
+    	}
+	
+
+	
+	voice_to_frequency[found_voice] = note_freq[freq_index];
+//	pio_sm_put(VOICE_TO_PIO[found_voice],VOICE_TO_SM[found_voice],note_freq[freq_index]);
+	voice_to_gate[found_voice] = 1;
+//	gpio_put(VOICE_TO_GATE_PIN[found_voice],1);
+	voice_to_pwm[found_voice] = (int)(divider*(voice_to_frequency[found_voice]*0.00025f-1/(100*voice_to_frequency[found_voice])));
+//	pwm_set_chan_level(VOICE_TO_SLICE_NUM[found_voice] , VOICE_TO_CHANNEL_NUM[found_voice], (int)(divider*(voice_to_frequency[found_voice]*0.00025f-1/(100*voice_to_frequency[found_voice]))));
+	curr_voice = (found_voice + 1) % NUM_VOICES;
 }
 
+uint64_t prev = 0;
 
 void keyboard_task(uint64_t prev_scan,uint64_t curr_scan){
 		
 	uint64_t premuti = curr_scan & ~prev_scan;
 	uint64_t rilasciati = ~curr_scan & prev_scan;	
-	
+
 	while(rilasciati){
 		uint i_lasciati = __builtin_ctzll(rilasciati);
 		libera_voce_con_freq(i_lasciati);
 		rilasciati &=  ~(1ULL<<i_lasciati);	
 	}
-	
+
 	while(premuti){
-		uint i_premuti = __builtin_ctzll(rilasciati);
+		uint i_premuti = __builtin_ctzll(premuti);
 		assegna_voce_con_freq(i_premuti);
 		premuti &= ~(1ULL<<i_premuti);
 	}
+
+	prev = curr_scan;
 
 		
 }
@@ -109,8 +129,8 @@ int main(){
 	scan_program_init(pio,sm,offset,SET_PIN,IN_PIN,2000);
 	sleep_ms(1000);
 	printf("Starting program\n");
-	uint32_t prev = 0;
-	uint32_t data;
+	sleep_ms(3000);
+	uint64_t data;
 	while(1){
 		data = pio_sm_get(pio,sm);
 		keyboard_task(prev,data);
@@ -122,12 +142,12 @@ int main(){
 		}
 		printf("]\n");
 		for(int j = 0;j<NUM_VOICES;j++){
-				printf("%f ,",voice_to_gate[j]);
+				printf("%d ,",voice_to_gate[j]);
 
 		}
 		printf("]\n");
 		printf("current voice: %u\n",curr_voice);
-		sleep_ms(100);
+		sleep_ms(50);
 	}
 	return 0;
 }
